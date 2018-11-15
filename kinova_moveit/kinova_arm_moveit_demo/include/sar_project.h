@@ -32,11 +32,11 @@ namespace kinova
 {
 
 
-    class PickPlace
+    class SarProject
     {
     public:
-        PickPlace(ros::NodeHandle &nh);
-        ~PickPlace();
+        SarProject(ros::NodeHandle &nh);
+        ~SarProject();
 
 
 
@@ -87,7 +87,7 @@ namespace kinova
         geometry_msgs::PoseStamped current_pose_;
 
 
-        // define pick_place joint value and pose
+        // define pick_place(sar_project) joint value and pose
         std::vector<double> start_joint_;
         std::vector<double> grasp_joint_;
         std::vector<double> pregrasp_joint_;
@@ -128,4 +128,4 @@ namespace kinova
 }
 
 
-#endif // PICK_PLACE_H
+#endif // SAR_PROJECT_H

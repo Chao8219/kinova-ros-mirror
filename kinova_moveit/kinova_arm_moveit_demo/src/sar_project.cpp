@@ -1,4 +1,4 @@
-#include <pick_place.h>
+#include <sar_project.h>
 #include <ros/console.h>
 
 #include <tf_conversions/tf_eigen.h>
@@ -26,7 +26,7 @@ tf::Quaternion EulerZYZ_to_Quaternion(double tz1, double ty, double tz2)
 }
 
 
-PickPlace::PickPlace(ros::NodeHandle &nh):
+SarProject::SarProject(ros::NodeHandle &nh):
     nh_(nh)
 {
 //    if(ros::console::set_logger_level(ROSCONSOLE_DEFAULT_NAME, ros::console::levels::Debug))
@@ -42,7 +42,7 @@ PickPlace::PickPlace(ros::NodeHandle &nh):
     if (robot_connected_)
     {
         //sub_joint_ = nh_.subscribe<sensor_msgs::JointState>("/j2s7s300_driver/out/joint_state", 1, &PickPlace::get_current_state, this);
-        sub_pose_ = nh_.subscribe<geometry_msgs::PoseStamped>("/" + robot_type_ +"_driver/out/tool_pose", 1, &PickPlace::get_current_pose, this);
+        sub_pose_ = nh_.subscribe<geometry_msgs::PoseStamped>("/" + robot_type_ +"_driver/out/tool_pose", 1, &SarProject::get_current_pose, this);
     }
 
     // Before we can load the planner, we need two objects, a RobotModel and a PlanningScene.
@@ -90,7 +90,7 @@ PickPlace::PickPlace(ros::NodeHandle &nh):
 }
 
 
-PickPlace::~PickPlace()
+SarProject::~SarProject()
 {
     // shut down pub and subs
     //sub_joint_.shutdown();
@@ -106,24 +106,24 @@ PickPlace::~PickPlace()
 }
 
 
-void PickPlace::get_current_state(const sensor_msgs::JointStateConstPtr &msg)
+void SarProject::get_current_state(const sensor_msgs::JointStateConstPtr &msg)
 {
     boost::mutex::scoped_lock lock(mutex_state_);
     current_state_ = *msg;
 }
 
-void PickPlace::get_current_pose(const geometry_msgs::PoseStampedConstPtr &msg)
+void SarProject::get_current_pose(const geometry_msgs::PoseStampedConstPtr &msg)
 {
     boost::mutex::scoped_lock lock(mutex_pose_);
     current_pose_ = *msg;
 }
 
 /**
- * @brief PickPlace::gripper_action
+ * @brief SarProject::gripper_action
  * @param gripper_rad close for 6400 and open for 0.0
  * @return true is gripper motion reaches the goal
  */
-bool PickPlace::gripper_action(double finger_turn)
+bool SarProject::gripper_action(double finger_turn)
 {
     if(robot_connected_ == false)
     {
@@ -168,7 +168,7 @@ bool PickPlace::gripper_action(double finger_turn)
 }
 
 
-void PickPlace::clear_workscene()
+void SarProject::clear_workscene()
 {
     // remove table
     co_.id = "table";
@@ -191,7 +191,7 @@ void PickPlace::clear_workscene()
     clear_obstacle();
 }
 
-void PickPlace::build_workscene()
+void SarProject::build_workscene()
 {
     co_.header.frame_id = "root";
     co_.header.stamp = ros::Time::now();
@@ -220,7 +220,7 @@ void PickPlace::build_workscene()
     pub_planning_scene_diff_.publish(planning_scene_msg_);
     ros::WallDuration(0.1).sleep();}
 
-void PickPlace::clear_obstacle()
+void SarProject::clear_obstacle()
 {
     co_.id = "pole";
     co_.operation = moveit_msgs::CollisionObject::REMOVE;
@@ -243,7 +243,7 @@ void PickPlace::clear_obstacle()
     //      std::cin >> pause_;
 }
 
-void PickPlace::add_obstacle()
+void SarProject::add_obstacle()
 {
     clear_obstacle();
 
@@ -270,7 +270,7 @@ void PickPlace::add_obstacle()
     ros::WallDuration(0.1).sleep();
 }
 
-void PickPlace::add_complex_obstacle()
+void SarProject::add_complex_obstacle()
 {
     clear_obstacle();
 
@@ -306,7 +306,7 @@ void PickPlace::add_complex_obstacle()
     //      std::cin >> pause_;
 }
 
-void PickPlace::add_attached_obstacle()
+void SarProject::add_attached_obstacle()
 {
     //once the object is know to be grasped
     //we remove obstacle from work scene
@@ -327,7 +327,7 @@ void PickPlace::add_attached_obstacle()
     pub_aco_.publish(aco_);
 }
 
-void PickPlace::add_target()
+void SarProject::add_target()
 {
     //remove target_cylinder
     co_.id = "target_cylinder";
@@ -357,7 +357,7 @@ void PickPlace::add_target()
     ros::WallDuration(0.1).sleep();
 }
 
-void PickPlace::check_collision()
+void SarProject::check_collision()
 {
     collision_detection::CollisionRequest collision_request;
     collision_detection::CollisionResult collision_result;
@@ -411,7 +411,7 @@ void PickPlace::check_collision()
 }
 
 
-void PickPlace::define_cartesian_pose()
+void SarProject::define_cartesian_pose()
 {
     tf::Quaternion q;
 
@@ -451,7 +451,7 @@ void PickPlace::define_cartesian_pose()
 
 }
 
-void PickPlace::define_joint_values()
+void SarProject::define_joint_values()
 {
     start_joint_.resize(joint_names_.size());
     //    getInvK(start_pose_, start_joint_);
@@ -502,7 +502,7 @@ void PickPlace::define_joint_values()
  * @param rot_gripper_z rotation along the z axis of the gripper reference frame (last joint rotation)
  * @return a pose defined in a spherical coordinates where origin is located at the target pose. Normally it is a pre_grasp/post_realease pose, where gripper axis (last joint axis) is pointing to the object (target_pose).
  */
-geometry_msgs::PoseStamped PickPlace::generate_gripper_align_pose(geometry_msgs::PoseStamped targetpose_msg, double dist, double azimuth, double polar, double rot_gripper_z)
+geometry_msgs::PoseStamped SarProject::generate_gripper_align_pose(geometry_msgs::PoseStamped targetpose_msg, double dist, double azimuth, double polar, double rot_gripper_z)
 {
     geometry_msgs::PoseStamped pose_msg;
 
@@ -531,7 +531,7 @@ geometry_msgs::PoseStamped PickPlace::generate_gripper_align_pose(geometry_msgs:
 }
 
 
-void PickPlace::setup_constrain(geometry_msgs::Pose target_pose, bool orientation, bool position)
+void SarProject::setup_constrain(geometry_msgs::Pose target_pose, bool orientation, bool position)
 {
     if ( (!orientation) && (!position) )
     {
@@ -613,7 +613,7 @@ void PickPlace::setup_constrain(geometry_msgs::Pose target_pose, bool orientatio
 //    ros::WallDuration(0.1).sleep();
 }
 
-void PickPlace::check_constrain()
+void SarProject::check_constrain()
 {
     moveit_msgs::Constraints grasp_constrains = group_->getPathConstraints();
     bool has_constrain = false;
@@ -634,7 +634,7 @@ void PickPlace::check_constrain()
     }
 }
 
-void PickPlace::evaluate_plan(moveit::planning_interface::MoveGroup &group)
+void SarProject::evaluate_plan(moveit::planning_interface::MoveGroup &group)
 {
     bool replan = true;
     int count = 0;
@@ -697,7 +697,7 @@ void PickPlace::evaluate_plan(moveit::planning_interface::MoveGroup &group)
 }
 
 
-bool PickPlace::my_pick()
+bool SarProject::my_pick()
 {
     clear_workscene();
     ros::WallDuration(1.0).sleep();
@@ -897,7 +897,7 @@ bool PickPlace::my_pick()
 }
 
 
-void PickPlace::getInvK(geometry_msgs::Pose &eef_pose, std::vector<double> &joint_value)
+void SarProject::getInvK(geometry_msgs::Pose &eef_pose, std::vector<double> &joint_value)
 {
     // TODO: transform cartesian command to joint space, and alway motion plan in joint space.
 }
@@ -910,7 +910,7 @@ int main(int argc, char **argv)
     ros::AsyncSpinner spinner(1);
     spinner.start();
 
-    kinova::PickPlace pick_place(node);
+    kinova::SarProject sar_place(node);
 
     ros::spin();
     return 0;
