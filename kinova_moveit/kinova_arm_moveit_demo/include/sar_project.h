@@ -124,6 +124,10 @@ namespace kinova
         void check_collision();
         void evaluate_plan(moveit::planning_interface::MoveGroup &group);
         bool gripper_action(double gripper_rad);
+
+        // SAR below:
+        bool sar_move();
+        std::vector<double> sar1_joint_;
     };
 }
 

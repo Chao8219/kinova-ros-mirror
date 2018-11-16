@@ -86,7 +86,7 @@ SarProject::SarProject(ros::NodeHandle &nh):
 
     // pick process
     result_ = false;
-    my_pick();
+    sar_move();
 }
 
 
@@ -490,6 +490,15 @@ void SarProject::define_joint_values()
     postgrasp_joint_[3] = 165 *M_PI/180.0;
     postgrasp_joint_[4] = 83 *M_PI/180.0;
     postgrasp_joint_[5] = 151 *M_PI/180.0;
+
+    // SAR joints
+    sar1_joint_.resize(joint_names_.size());
+    sar1_joint_[0] =  90.0 * M_PI / 180.0;
+    sar1_joint_[1] = -90.0 * M_PI / 180.0;
+    sar1_joint_[2] =  90.0 * M_PI / 180.0;
+    sar1_joint_[3] = -90.0 * M_PI / 180.0;
+    sar1_joint_[4] =  90.0 * M_PI / 180.0;
+    sar1_joint_[5] = -90.0 * M_PI / 180.0;
 }
 
 
@@ -914,4 +923,41 @@ int main(int argc, char **argv)
 
     ros::spin();
     return 0;
+}
+
+bool SarProject::sar_move()
+{
+    clear_workscene();
+    ros::WallDuration(1.0).sleep();
+    // build_workscene();
+    ros::WallDuration(1.0).sleep();
+
+    ROS_INFO_STREAM("Enter anything to send robot to start pose ...");
+    std::cin >> pause_;
+    
+    // set pose
+    group_->setJointValueTarget(start_joint_);
+    evaluate_plan(*group_);
+    ROS_INFO_STREAM("Enter anything to countinue");
+    std::cin >> pause_;
+
+    ROS_INFO_STREAM("Planning to pre-grasp joint pose ...");
+    group_->setJointValueTarget(pregrasp_joint_);
+    evaluate_plan(*group_);
+    ROS_INFO_STREAM("Enter anything to countinue");
+    std::cin >> pause_;
+
+    ROS_INFO_STREAM("Planning to sar1 joint pose ...");
+    group_->setJointValueTarget(sar1_joint_);
+    evaluate_plan(*group_);
+    ROS_INFO_STREAM("Enter anything to countinue");
+    std::cin >> pause_;
+
+    clear_workscene();
+    ROS_INFO_STREAM("Press any key to quit ...");
+    std::cin >> pause_;
+
+    ROS_INFO_STREAM("Killing this ROS node now ...");
+    ros::shutdown();
+    return true;
 }
