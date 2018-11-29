@@ -1,4 +1,6 @@
 <launch>
+  <arg name="full_rviz" default="true" />
+  <arg name="simple_rviz" default="false" />
 
   <param name="robot_type" value="j2n6s300" />
   <param name="robot_connected" value="false" />
@@ -40,10 +42,19 @@
   </include>
 
   <!-- Run Rviz and load the default config to see the state of the move_group node -->
-  <include file="$(find j2n6s300_moveit_config)/launch/moveit_rviz.launch">
-    <arg name="config" value="true"/>
-    <arg name="debug" value="$(arg debug)"/>
-  </include>
+  <group if="$(arg full_rviz)">
+    <include file="$(find j2n6s300_moveit_config)/launch/moveit_rviz.launch">
+      <arg name="config" value="true"/>
+      <arg name="debug" value="$(arg debug)"/>
+    </include>
+  </group>
+
+  <group if="$(arg simple_rviz)">
+    <include file="$(find j2n6s300_moveit_config)/launch/moveit_rviz_simple.launch">
+      <arg name="config" value="true"/>
+      <arg name="debug" value="$(arg debug)"/>
+    </include>
+  </group>
 
   <!-- If database loading was enabled, start mongodb as well -->
   <include file="$(find j2n6s300_moveit_config)/launch/default_warehouse_db.launch" if="$(arg db)">
