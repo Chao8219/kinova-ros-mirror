@@ -941,8 +941,17 @@ bool SarProject::sar_move()
     // build_workscene();
     ros::WallDuration(1.0).sleep();
 
-    ROS_INFO_STREAM("Enter anything to send robot to start pose ...");
-    std::cin >> pause_;
+    // ROS_INFO_STREAM("Enter anything to send robot to start pose ...");
+    // std::cin >> pause_;
+
+    ROS_INFO_STREAM("Hang on tight! Game is about to begin in 3 second!");
+    ROS_INFO_STREAM("Three!");
+    ros::WallDuration(1.0).sleep();
+    ROS_INFO_STREAM("Two!");
+    ros::WallDuration(1.0).sleep();
+    ROS_INFO_STREAM("One!");
+    ros::WallDuration(1.0).sleep();
+    ROS_INFO_STREAM("Let's rock!!");
     
     shutdown_signal = false;
     while(!shutdown_signal){
@@ -993,16 +1002,16 @@ void SarProject::sar_evaluate_plan(moveit::planning_interface::MoveGroup &group)
         {
             count++;
             plan_time = 20+count*10;
-            ROS_INFO("Setting plan time to %f sec, at attemp: %d .", plan_time, count);
+            // ROS_INFO("Setting plan time to %f sec, at attemp: %d .", plan_time, count);
             group.setPlanningTime(plan_time);
             result_ = group.plan(my_plan);
-            ros::WallDuration(0.1).sleep();
+            // ros::WallDuration(0.1).sleep();
         }
 
         // found a plan
         if (result_ == true)
         {
-            ROS_INFO("Plan success at attemp: %d .", count);
+            // ROS_INFO("Plan success at attemp: %d .", count);
             replan = false;
             // ros::WallDuration(0.5).sleep();
         }
@@ -1018,5 +1027,5 @@ void SarProject::sar_evaluate_plan(moveit::planning_interface::MoveGroup &group)
     {
         group.execute(my_plan);
     }
-    ros::WallDuration(0.1).sleep();
+    // ros::WallDuration(0.1).sleep();
 }
