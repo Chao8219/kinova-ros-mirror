@@ -499,6 +499,15 @@ void SarProject::define_joint_values()
     sar1_joint_[3] = -90.0 * M_PI / 180.0;
     sar1_joint_[4] =  90.0 * M_PI / 180.0;
     sar1_joint_[5] = -90.0 * M_PI / 180.0;
+
+    // Temp joints
+    pub_joint_param_cpp.resize(joint_names_.size());
+    pub_joint_param_cpp[0] = 0.0 * M_PI / 180.0;
+    pub_joint_param_cpp[1] = 0.0 * M_PI / 180.0;
+    pub_joint_param_cpp[2] = 0.0 * M_PI / 180.0;
+    pub_joint_param_cpp[3] = 0.0 * M_PI / 180.0;
+    pub_joint_param_cpp[4] = 0.0 * M_PI / 180.0;
+    pub_joint_param_cpp[5] = 0.0 * M_PI / 180.0;
 }
 
 
@@ -935,29 +944,79 @@ bool SarProject::sar_move()
     ROS_INFO_STREAM("Enter anything to send robot to start pose ...");
     std::cin >> pause_;
     
-    // set pose
-    group_->setJointValueTarget(start_joint_);
-    evaluate_plan(*group_);
-    ROS_INFO_STREAM("Enter anything to countinue");
-    std::cin >> pause_;
-
-    ROS_INFO_STREAM("Planning to pre-grasp joint pose ...");
-    group_->setJointValueTarget(pregrasp_joint_);
-    evaluate_plan(*group_);
-    ROS_INFO_STREAM("Enter anything to countinue");
-    std::cin >> pause_;
-
-    ROS_INFO_STREAM("Planning to sar1 joint pose ...");
-    group_->setJointValueTarget(sar1_joint_);
-    evaluate_plan(*group_);
-    ROS_INFO_STREAM("Enter anything to countinue");
-    std::cin >> pause_;
-
-    clear_workscene();
-    ROS_INFO_STREAM("Press any key to quit ...");
-    std::cin >> pause_;
-
-    ROS_INFO_STREAM("Killing this ROS node now ...");
+    shutdown_signal = false;
+    while(!shutdown_signal){
+        ros::param::get("/shutdown_signal", shutdown_signal);
+        ros::param::get("/pub_joint_param", pub_joint_param_cpp);
+        for(int i = 0; i <= pub_joint_param_cpp.size(); i++){
+            pub_joint_param_cpp[i] *= M_PI / 180.0;
+        }
+        group_->setJointValueTarget(pub_joint_param_cpp);
+        sar_evaluate_plan(*group_);
+        if(shutdown_signal == true){
+            ROS_INFO_STREAM("Killing this ROS node now ...");
+            break;
+        }
+    }
     ros::shutdown();
+    // get_params_n_print();
     return true;
+}
+
+void SarProject::get_params_n_print(){
+    ros::param::get("/pub_joint_param", pub_joint_param_cpp);
+    std::cout << "Array[0] is: " <<pub_joint_param_cpp[0] << std::endl;
+    std::cout << "Array[1] is: " <<pub_joint_param_cpp[1] << std::endl;
+    std::cout << "Array[2] is: " <<pub_joint_param_cpp[2] << std::endl;
+    std::cout << "Array[3] is: " <<pub_joint_param_cpp[3] << std::endl;
+    std::cout << "Array[4] is: " <<pub_joint_param_cpp[4] << std::endl;
+    std::cout << "Array[5] is: " <<pub_joint_param_cpp[5] << std::endl;
+    return;
+}
+
+void SarProject::sar_evaluate_plan(moveit::planning_interface::MoveGroup &group)
+{
+    bool replan = true;
+    int count = 0;
+
+    moveit::planning_interface::MoveGroup::Plan my_plan;
+
+    while (replan == true && ros::ok())
+    {
+        // reset flag for replan
+        count = 0;
+        result_ = false;
+
+        // try to find a success plan.
+        double plan_time;
+        while (result_ == false && count < 5)
+        {
+            count++;
+            plan_time = 20+count*10;
+            ROS_INFO("Setting plan time to %f sec, at attemp: %d .", plan_time, count);
+            group.setPlanningTime(plan_time);
+            result_ = group.plan(my_plan);
+            ros::WallDuration(0.1).sleep();
+        }
+
+        // found a plan
+        if (result_ == true)
+        {
+            ROS_INFO("Plan success at attemp: %d .", count);
+            replan = false;
+            // ros::WallDuration(0.5).sleep();
+        }
+        else // not found
+        {
+            std::cout << "Exit since plan failed until reach maximum attemp: " << count << std::endl;
+            replan = false;
+            break;
+        }
+    }
+
+    if(result_ == true)
+    {
+        group.execute(my_plan);
+    }
+    ros::WallDuration(0.1).sleep();
 }

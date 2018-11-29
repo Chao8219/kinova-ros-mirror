@@ -127,7 +127,13 @@ namespace kinova
 
         // SAR below:
         bool sar_move();
+        void get_params_n_print();
+        void sar_evaluate_plan(moveit::planning_interface::MoveGroup &group);
+        
         std::vector<double> sar1_joint_;
+        std::vector<double> pub_joint_param_cpp;
+        
+        bool shutdown_signal;
     };
 }
 
