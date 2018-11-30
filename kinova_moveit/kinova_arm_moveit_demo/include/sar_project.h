@@ -1,6 +1,8 @@
 #ifndef SAR_PROJECT_H
 #define SAR_PROJECT_H
 
+#include <typeinfo>
+
 #include <ros/ros.h>
 #include <kinova_driver/kinova_ros_types.h>
 
@@ -131,7 +133,8 @@ namespace kinova
         void sar_evaluate_plan(moveit::planning_interface::MoveGroup &group);
         
         std::vector<double> sar1_joint_;
-        std::vector<double> pub_joint_param_cpp;
+        std::vector<double> pub_joint_param_cpp_degree;
+        std::vector<double> pub_joint_param_cpp_radius;
         
         bool shutdown_signal;
     };

@@ -7,6 +7,8 @@ Panels:
         - /MotionPlanning1
         - /MotionPlanning1/Scene Geometry1
         - /MotionPlanning1/Scene Robot1
+        - /MotionPlanning1/Scene Robot1/Links1
+        - /MotionPlanning1/Scene Robot1/Links1/j2n6s300_end_effector1
         - /MotionPlanning1/Planning Request1
         - /MotionPlanning1/Planning Metrics1
         - /MotionPlanning1/Planned Path1
@@ -195,7 +197,7 @@ Visualization Manager:
           j2n6s300_end_effector:
             Alpha: 1
             Show Axes: false
-            Show Trail: false
+            Show Trail: true
             Value: true
           j2n6s300_link_1:
             Alpha: 1
@@ -271,7 +273,7 @@ Visualization Manager:
             Alpha: 1
             Show Axes: false
             Show Trail: false
-        Robot Alpha: 0.5
+        Robot Alpha: 1
         Show Robot Collision: false
         Show Robot Visual: true
       Value: true
@@ -290,22 +292,22 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/XYOrbit
-      Distance: 2.9965
+      Distance: 1.66224
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.06
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: 0.113567
-        Y: 0.10592
-        Z: 2.23518e-07
+        X: 0.60344
+        Y: -0.447343
+        Z: 6.70492e-07
       Name: Current View
       Near Clip Distance: 0.01
-      Pitch: 0.474797
+      Pitch: 0.189797
       Target Frame: root
       Value: XYOrbit (rviz)
-      Yaw: 3.00176
+      Yaw: 5.45993
     Saved: ~
 Window Geometry:
   Displays:

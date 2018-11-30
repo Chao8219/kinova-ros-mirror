@@ -500,14 +500,24 @@ void SarProject::define_joint_values()
     sar1_joint_[4] =  90.0 * M_PI / 180.0;
     sar1_joint_[5] = -90.0 * M_PI / 180.0;
 
-    // Temp joints
-    pub_joint_param_cpp.resize(joint_names_.size());
-    pub_joint_param_cpp[0] = 0.0 * M_PI / 180.0;
-    pub_joint_param_cpp[1] = 0.0 * M_PI / 180.0;
-    pub_joint_param_cpp[2] = 0.0 * M_PI / 180.0;
-    pub_joint_param_cpp[3] = 0.0 * M_PI / 180.0;
-    pub_joint_param_cpp[4] = 0.0 * M_PI / 180.0;
-    pub_joint_param_cpp[5] = 0.0 * M_PI / 180.0;
+    // get joints from ROS parameter server
+    pub_joint_param_cpp_radius.resize(joint_names_.size());
+    pub_joint_param_cpp_radius[0] = 0.0 * M_PI / 180.0;
+    pub_joint_param_cpp_radius[1] = 180.0 * M_PI / 180.0;
+    pub_joint_param_cpp_radius[2] = 25.0 * M_PI / 180.0;
+    pub_joint_param_cpp_radius[3] = -90.0 * M_PI / 180.0;
+    pub_joint_param_cpp_radius[4] = 0.0 * M_PI / 180.0;
+    pub_joint_param_cpp_radius[5] = 90.0 * M_PI / 180.0;
+
+    pub_joint_param_cpp_degree.resize(joint_names_.size());
+    pub_joint_param_cpp_degree[0] = 0.0;
+    pub_joint_param_cpp_degree[1] = 180.0;
+    pub_joint_param_cpp_degree[2] = 25.0;
+    pub_joint_param_cpp_degree[3] = -90.0;
+    pub_joint_param_cpp_degree[4] = 0.0;
+    pub_joint_param_cpp_degree[5] = 90.0;
+
+
 }
 
 
@@ -939,28 +949,32 @@ bool SarProject::sar_move()
     clear_workscene();
     ros::WallDuration(1.0).sleep();
     // build_workscene();
-    ros::WallDuration(1.0).sleep();
+    // ros::WallDuration(1.0).sleep();
 
     // ROS_INFO_STREAM("Enter anything to send robot to start pose ...");
     // std::cin >> pause_;
 
     ROS_INFO_STREAM("Hang on tight! Game is about to begin in 3 second!");
+    ros::WallDuration(1.0).sleep();
     ROS_INFO_STREAM("Three!");
     ros::WallDuration(1.0).sleep();
     ROS_INFO_STREAM("Two!");
     ros::WallDuration(1.0).sleep();
     ROS_INFO_STREAM("One!");
     ros::WallDuration(1.0).sleep();
-    ROS_INFO_STREAM("Let's rock!!");
+    ROS_INFO_STREAM("Shuuuuiiiii!!");
     
-    shutdown_signal = false;
+    // set initial params
+    ros::param::set("/shutdown_signal", false);
+    ros::param::set("/pub_joint_param", pub_joint_param_cpp_degree);
+
     while(!shutdown_signal){
         ros::param::get("/shutdown_signal", shutdown_signal);
-        ros::param::get("/pub_joint_param", pub_joint_param_cpp);
-        for(int i = 0; i <= pub_joint_param_cpp.size(); i++){
-            pub_joint_param_cpp[i] *= M_PI / 180.0;
+        ros::param::get("/pub_joint_param", pub_joint_param_cpp_degree);
+        for(int i = 0; i <= pub_joint_param_cpp_degree.size(); i++){
+            pub_joint_param_cpp_degree[i] *= M_PI / 180.0;
         }
-        group_->setJointValueTarget(pub_joint_param_cpp);
+        group_->setJointValueTarget(pub_joint_param_cpp_degree);
         sar_evaluate_plan(*group_);
         if(shutdown_signal == true){
             ROS_INFO_STREAM("Killing this ROS node now ...");
@@ -973,13 +987,13 @@ bool SarProject::sar_move()
 }
 
 void SarProject::get_params_n_print(){
-    ros::param::get("/pub_joint_param", pub_joint_param_cpp);
-    std::cout << "Array[0] is: " <<pub_joint_param_cpp[0] << std::endl;
-    std::cout << "Array[1] is: " <<pub_joint_param_cpp[1] << std::endl;
-    std::cout << "Array[2] is: " <<pub_joint_param_cpp[2] << std::endl;
-    std::cout << "Array[3] is: " <<pub_joint_param_cpp[3] << std::endl;
-    std::cout << "Array[4] is: " <<pub_joint_param_cpp[4] << std::endl;
-    std::cout << "Array[5] is: " <<pub_joint_param_cpp[5] << std::endl;
+    ros::param::get("/pub_joint_param", pub_joint_param_cpp_degree);
+    std::cout << "Array[0] is: " << pub_joint_param_cpp_degree[0] << std::endl;
+    std::cout << "Array[1] is: " << pub_joint_param_cpp_degree[1] << std::endl;
+    std::cout << "Array[2] is: " << pub_joint_param_cpp_degree[2] << std::endl;
+    std::cout << "Array[3] is: " << pub_joint_param_cpp_degree[3] << std::endl;
+    std::cout << "Array[4] is: " << pub_joint_param_cpp_degree[4] << std::endl;
+    std::cout << "Array[5] is: " << pub_joint_param_cpp_degree[5] << std::endl;
     return;
 }
 
