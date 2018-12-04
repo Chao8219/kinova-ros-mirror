@@ -1039,7 +1039,14 @@ void SarProject::sar_evaluate_plan(moveit::planning_interface::MoveGroup &group)
 
     if(result_ == true)
     {
-        group.execute(my_plan);
+        /**
+         *  the default is group.execute(my_plan);, which would wait to finish executation.
+         * this async function doesn't need to wait,
+         * except, it may cause errors (that doesn't too hurtful).
+         * if it is hurtful enough, just switch back to execute() function.
+         * don't panic.
+         */
+        group.asyncExecute(my_plan);
     }
     // ros::WallDuration(0.1).sleep();
 }

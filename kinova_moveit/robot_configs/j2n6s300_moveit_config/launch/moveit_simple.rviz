@@ -73,7 +73,7 @@ Visualization Manager:
           j2n6s300_end_effector:
             Alpha: 1
             Show Axes: false
-            Show Trail: false
+            Show Trail: true
             Value: true
           j2n6s300_link_1:
             Alpha: 1
