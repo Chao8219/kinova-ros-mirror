@@ -59,6 +59,10 @@ add_executable(sar_project src/sar_project.cpp include/sar_project.h)
 target_link_libraries(sar_project ${catkin_LIBRARIES} ${Boost_LIBRARIES} ${kinova_driver_LIBRARIES})
 install(TARGETS sar_project DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
 
+add_executable(sar_project_xyz src/sar_project_xyz.cpp include/sar_project_xyz.h)
+target_link_libraries(sar_project_xyz ${catkin_LIBRARIES} ${Boost_LIBRARIES} ${kinova_driver_LIBRARIES})
+install(TARGETS sar_project_xyz DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
+
 add_executable(test_accuracy src/test_accuracy.cpp include/test_accuracy.h)
 target_link_libraries(test_accuracy ${catkin_LIBRARIES} ${Boost_LIBRARIES} ${kinova_driver_LIBRARIES})
 install(TARGETS test_accuracy DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
