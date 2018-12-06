@@ -1031,11 +1031,11 @@ void SarProjectXYZ::sar_evaluate_plan(moveit::planning_interface::MoveGroup &gro
 
         // try to find a success plan.
         double plan_time;
-        while (result_ == false && count < 5)
+        while (result_ == false && count < 3)
         {
             count++;
             plan_time = 20+count*10;
-            // ROS_INFO("Setting plan time to %f sec, at attemp: %d .", plan_time, count);
+            ROS_INFO("Setting plan time to %f sec, at attemp: %d .", plan_time, count);
             group.setPlanningTime(plan_time);
             result_ = group.plan(my_plan);
             // ros::WallDuration(0.1).sleep();
@@ -1044,9 +1044,9 @@ void SarProjectXYZ::sar_evaluate_plan(moveit::planning_interface::MoveGroup &gro
         // found a plan
         if (result_ == true)
         {
-            // ROS_INFO("Plan success at attemp: %d .", count);
+            ROS_INFO("Plan success at attemp: %d .", count);
             replan = false;
-            // ros::WallDuration(0.5).sleep();
+            ros::WallDuration(0.5).sleep();
         }
         else // not found
         {
@@ -1065,9 +1065,9 @@ void SarProjectXYZ::sar_evaluate_plan(moveit::planning_interface::MoveGroup &gro
          * if it is hurtful enough, just switch back to execute() function.
          * don't panic.
          */
-        group.asyncExecute(my_plan);
+        group.execute(my_plan);
     }
-    // ros::WallDuration(0.1).sleep();
+    ros::WallDuration(0.1).sleep();
 }
 
 void SarProjectXYZ::sar_cal_pose(std::vector<double> &pose_xyz){
